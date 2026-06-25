@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="IMA Agent">
+<title>IMA Marketing Agent</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f4f0;
+  display: flex; flex-direction: column;
+  height: 100dvh;
+}
+
+#app {
+  display: flex; flex-direction: column;
+  width: 100%; height: 100%;
+  background: #fff;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+#header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e0d8;
+  background: #f9f8f5;
+  flex-shrink: 0;
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+.logo-badge {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: #0F6E56; color: #9FE1CB;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+#header-info { flex: 1; min-width: 0; }
+#header-title { font-size: 14px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#header-sub { font-size: 11px; color: #888; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.horizon-pills { display: flex; gap: 4px; flex-shrink: 0; }
+.pill { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; border: 1px solid; white-space: nowrap; }
+.pill-r { background: #FAECE7; color: #993C1D; border-color: #F0997B; }
+.pill-y { background: #FAEEDA; color: #854F0B; border-color: #EF9F27; }
+.pill-b { background: #E6F1FB; color: #185FA5; border-color: #85B7EB; }
+#key-indicator {
+  font-size: 11px; color: #0F6E56; background: #E1F5EE;
+  padding: 3px 8px; border-radius: 20px; cursor: pointer;
+  border: 1px solid #9FE1CB; display: none; flex-shrink: 0; white-space: nowrap;
+}
+
+/* API SCREEN */
+#api-screen {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px; gap: 14px; overflow-y: auto;
+}
+.key-icon { font-size: 44px; }
+#api-screen h3 { font-size: 18px; font-weight: 600; color: #1a1a1a; text-align: center; }
+#api-screen .desc { font-size: 14px; color: #666; text-align: center; line-height: 1.6; max-width: 340px; }
+#api-input {
+  width: 100%; max-width: 400px; padding: 12px 14px;
+  font-size: 14px; font-family: 'Courier New', monospace;
+  border-radius: 12px; border: 1px solid #d0cec6;
+  background: #faf9f7; color: #1a1a1a; outline: none;
+  -webkit-appearance: none;
+}
+#api-input:focus { border-color: #0F6E56; box-shadow: 0 0 0 3px rgba(15,110,86,0.12); }
+#api-submit {
+  width: 100%; max-width: 400px; padding: 14px;
+  font-size: 15px; font-weight: 600; border-radius: 12px;
+  background: #0F6E56; color: #E1F5EE; border: none; cursor: pointer;
+}
+#api-submit:active { opacity: 0.82; }
+#api-error {
+  font-size: 13px; color: #993C1D; background: #FAECE7;
+  padding: 10px 16px; border-radius: 10px; display: none;
+  max-width: 400px; text-align: center; line-height: 1.5;
+}
+.api-note { font-size: 12px; color: #999; text-align: center; max-width: 340px; line-height: 1.6; }
+.api-note a { color: #0F6E56; }
+.api-steps {
+  width: 100%; max-width: 400px;
+  background: #f9f8f5; border-radius: 12px;
+  padding: 16px; border: 1px solid #e2e0d8;
+}
+.api-steps p { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
+.api-steps ol { padding-left: 18px; }
+.api-steps li { font-size: 13px; color: #555; line-height: 1.7; }
+.api-steps li a { color: #0F6E56; }
+
+/* CHAT SCREEN */
+#chat-screen { flex: 1; display: none; flex-direction: column; overflow: hidden; min-height: 0; }
+
+#messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  scroll-behavior: smooth; min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.msg { display: flex; gap: 8px; align-items: flex-start; }
+.msg.user { flex-direction: row-reverse; }
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+}
+.avatar-agent { background: #0F6E56; color: #9FE1CB; }
+.avatar-user { background: #E6F1FB; color: #185FA5; }
+.bubble {
+  max-width: 88%; padding: 10px 13px;
+  border-radius: 16px;
+  font-size: 14px; line-height: 1.65;
+  color: #1a1a1a; white-space: pre-wrap; word-break: break-word;
+  border: 1px solid #e8e6de; background: #fff;
+}
+.msg.agent .bubble { border-bottom-left-radius: 4px; }
+.msg.user .bubble { border-bottom-right-radius: 4px; background: #f5f4f0; border-color: #e2e0d8; }
+.bubble strong { font-weight: 600; }
+.tag-r { color: #993C1D; font-weight: 600; }
+.tag-y { color: #854F0B; font-weight: 600; }
+.tag-b { color: #185FA5; font-weight: 600; }
+
+.typing-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; background: #bbb;
+  animation: blink 1.2s infinite; margin: 0 2px;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+/* FOOTER */
+#footer {
+  border-top: 1px solid #e2e0d8;
+  padding: 10px 12px;
+  background: #fff; flex-shrink: 0;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
+.quick-btns {
+  display: flex; gap: 6px; margin-bottom: 10px;
+  overflow-x: auto; padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.quick-btns::-webkit-scrollbar { display: none; }
+.qb {
+  font-size: 12px; padding: 6px 12px; border-radius: 20px;
+  border: 1px solid #d0cec6; background: #f9f8f5;
+  color: #555; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+.qb:active { background: #f0faf6; border-color: #0F6E56; color: #0F6E56; }
+#input-row { display: flex; gap: 8px; align-items: flex-end; }
+#user-input {
+  flex: 1; resize: none; font-size: 15px;
+  padding: 10px 13px; border-radius: 22px;
+  min-height: 44px; max-height: 110px; overflow-y: auto;
+  line-height: 1.5; font-family: inherit;
+  background: #f5f4f0; border: 1px solid #d0cec6;
+  color: #1a1a1a; outline: none;
+  -webkit-appearance: none;
+}
+#user-input:focus { border-color: #0F6E56; background: #fff; }
+#send-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #0F6E56; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #E1F5EE; flex-shrink: 0; font-size: 20px; font-weight: 300;
+}
+#send-btn:active { opacity: 0.8; transform: scale(0.95); }
+#send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="header">
+    <div class="logo-badge">IMA</div>
+    <div id="header-info">
+      <div id="header-title">IMA Marketing Agent</div>
+      <div id="header-sub">IMA Infissi S.r.l. — Agente autonomo</div>
+    </div>
+    <div class="horizon-pills" id="pills">
+      <span class="pill pill-r">🔴</span>
+      <span class="pill pill-y">🟡</span>
+      <span class="pill pill-b">🔵</span>
+    </div>
+    <span id="key-indicator" onclick="resetKey()">🔑 Connesso</span>
+  </div>
+
+  <!-- API KEY SCREEN -->
+  <div id="api-screen">
+    <div class="key-icon">🔑</div>
+    <h3>Inserisci la tua API Key</h3>
+    <p class="desc">L'agente usa l'API Anthropic. La chiave resta solo nel tuo browser.</p>
+
+    <div class="api-steps">
+      <p>Come ottenere la chiave:</p>
+      <ol>
+        <li>Vai su <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></li>
+        <li>Accedi con la stessa email di Claude.ai</li>
+        <li>Clicca <strong>Create Key</strong> e copia la chiave</li>
+        <li>Vai su <strong>Billing</strong> e aggiungi $5 di credito</li>
+      </ol>
+    </div>
+
+    <input id="api-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" />
+    <div id="api-error">Chiave non valida. Deve iniziare con sk-ant-</div>
+    <button id="api-submit" onclick="startWithKey()">Avvia IMA Marketing Agent ↗</button>
+    <p class="api-note">Con $5 di credito hai circa 50–100 riunioni mensili.<br>Equivale a anni di utilizzo.</p>
+  </div>
+
+  <!-- CHAT SCREEN -->
+  <div id="chat-screen">
+    <div id="messages"></div>
+    <div id="footer">
+      <div class="quick-btns">
+        <button class="qb" onclick="sendQuick('Avvia riunione mensile con scheda mercato e tre domande prioritarie')">🗓️ Riunione mensile</button>
+        <button class="qb" onclick="sendQuick('Analizza i dati ADS di questo mese')">📊 Analisi ADS</button>
+        <button class="qb" onclick="sendQuick('Dammi azioni immediate eseguibili questa settimana')">🔴 Azioni immediate</button>
+        <button class="qb" onclick="sendQuick('Aggiornamento strategico espansione Firenze-Mare')">🔵 Strategico</button>
+        <button class="qb" onclick="sendQuick('Analizza la pipeline: preventivi aperti, chiusi e freddi questo mese')">📋 Pipeline</button>
+        <button class="qb" onclick="sendQuick('Narrativa investitori: stato coerenza comunicazione questo mese')">📣 Investitori</button>
+      </div>
+      <div id="input-row">
+        <textarea id="user-input" placeholder="Scrivi qui…" rows="1"></textarea>
+        <button id="send-btn" onclick="sendMessage()" title="Invia">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `🧠 IMA Marketing AI Agent — Full Autonomous Mode v3.0
+
+IDENTITÀ E RUOLO
+Sei IMA Marketing Agent, un agente AI specializzato in marketing operativo proattivo per IMA Infissi S.r.l. — azienda toscana fondata nel 1956, con showroom a Pistoia e Prato, attiva nella vendita di infissi e serramenti. Affianca l'azienda anche la divisione IMA Green, dedicata a impianti fotovoltaici e sistemi di accumulo energetico.
+Non aspetti mai. Sei un agente attivo, ciclico e autonomo: sei tu ad aprire ogni sessione, fare le domande, raccogliere i dati, analizzare e produrre output concreti. L'utente risponde e fornisce dati — tu guidi, analizzi ed esegui. Questa dinamica non si inverte mai.
+Obiettivo strategico: supportare la crescita strutturata di IMA Infissi verso un'organizzazione di oltre 20 collaboratori e 6 showroom lungo la direttrice Firenze–Mare in 7 anni.
+
+CONTESTO AZIENDALE
+- Mercato: B2C (famiglie private) e B2B (architetti, costruttori, cooperative)
+- Area geografica: Pistoia, Prato, Montecatini Terme, Quarrata, Serravalle Pistoiese — espansione Firenze–Mare pianificata
+- Team: Andrea (Titolare), Fabio Mazzanti (Co-titolare tecnico), Luca (Responsabile vendite), Biagio (Commerciale)
+- IMA Green: divisione fotovoltaico e accumulo, brand separato, tono moderno e consulenziale
+
+I TRE ORIZZONTI TEMPORALI (SEMPRE PRESENTI IN OGNI RISPOSTA)
+🔴 ORIZZONTE 1 — PRESENTE (0-4 settimane): esecuzione immediata, output concreti
+🟡 ORIZZONTE 2 — BREVE TERMINE (4-8 settimane): campagne in costruzione, azioni anti-calo
+🔵 ORIZZONTE 3 — STRATEGICO (24 mesi): milestone espansione, investimenti, posizionamento
+
+REGOLA DEI TRE ORIZZONTI:
+- 🔴 Si esegue SEMPRE ogni mese — output concreti e immediati
+- 🟡 Si pianifica SEMPRE ogni mese — almeno una campagna in preparazione
+- 🔵 Si aggiorna SEMPRE ogni mese — segnale, raccomandazione o alert strategico
+- Alert strategico con 8 settimane di anticipo per ogni milestone
+
+STRUTTURA RIUNIONE MENSILE AUTONOMA:
+1. 🌐 SCHEDA MERCATO — trend, keyword crescita, incentivi fiscali attivi, segnali competitivi locali
+2. 📋 REVIEW MESE PRECEDENTE
+3. 📊 ANALISI DATI — ADS, pipeline, segnali deboli
+4. 🔴 PIANO IMMEDIATO (0-4 sett.) — azioni e materiali pronti
+5. 🟡 PIANO BREVE (4-8 sett.) — campagne in preparazione
+6. 🔵 AGGIORNAMENTO STRATEGICO (24 mesi)
+7. ❓ DOMANDE AD ANDREA — massimo 3, ordinate per priorità
+8. 📎 OUTPUT SESSIONE — materiali prodotti + riepilogo
+
+FILTRO PMI per ogni proposta:
+- Budget: sotto €500 | Esecuzione: meno di 2 settimane
+- Risorse: Andrea, Luca o Biagio | KPI: almeno uno tracciabile
+- Radicamento territoriale | Scalabilità nei futuri showroom
+
+MODULO ADS ANALYTICS: CPM, CTR, CPC, CPL, ROAS, Frequenza, Conversioni
+Output: Verdetto sintetico, Diagnosi per metrica, 3 azioni correttive, Test A/B, Proiezione miglioramento
+
+MODULO INVESTOR COMMUNICATION: coerenza social, LinkedIn B2B, sito espansione, tono IMA/IMA Green, milestone da comunicare
+
+RIEPILOGO OBBLIGATORIO DI FINE SESSIONE:
+📌 RIUNIONE MARKETING IMA — [data]
+🌐 MERCATO | 📊 ANALISI | 🔴 AZIONI IMMEDIATE | 🟡 IN PREPARAZIONE | 🔵 AGGIORNAMENTO STRATEGICO | 📣 NARRATIVA INVESTITORI | 📎 OUTPUT PRODOTTI | 🗓️ PROSSIMA RIUNIONE
+
+REGOLE NON DEROGABILI:
+- Sei SEMPRE TU ad aprire la sessione
+- Tre orizzonti SEMPRE presenti in ogni risposta
+- Max 3 domande per sessione
+- Almeno 2 materiali pronti per sessione
+- Scrivi SEMPRE in italiano
+- Il filo rosso è SEMPRE l'espansione Firenze-Mare
+
+Data corrente: ${new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}`;
+
+let history = [];
+let isLoading = false;
+let apiKey = '';
+
+const messagesEl = document.getElementById('messages');
+const inputEl = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+
+// Salva key in sessionStorage per comodità
+const savedKey = sessionStorage.getItem('ima_api_key');
+if (savedKey) {
+  document.getElementById('api-input').value = savedKey;
+}
+
+function startWithKey() {
+  const key = document.getElementById('api-input').value.trim();
+  const errEl = document.getElementById('api-error');
+  if (!key.startsWith('sk-ant-')) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  apiKey = key;
+  sessionStorage.setItem('ima_api_key', key);
+  document.getElementById('api-screen').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'flex';
+  document.getElementById('key-indicator').style.display = 'inline-flex';
+  document.getElementById('pills').style.display = 'none';
+  autoStart();
+}
+
+function resetKey() {
+  if (!confirm('Cambiare API key? La conversazione verrà persa.')) return;
+  apiKey = '';
+  history = [];
+  messagesEl.innerHTML = '';
+  sessionStorage.removeItem('ima_api_key');
+  document.getElementById('chat-screen').style.display = 'none';
+  document.getElementById('api-screen').style.display = 'flex';
+  document.getElementById('key-indicator').style.display = 'none';
+  document.getElementById('pills').style.display = 'flex';
+  document.getElementById('api-input').value = '';
+}
+
+document.getElementById('api-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startWithKey();
+});
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/🔴/g, '<span class="tag-r">🔴</span>')
+    .replace(/🟡/g, '<span class="tag-y">🟡</span>')
+    .replace(/🔵/g, '<span class="tag-b">🔵</span>');
+}
+
+function addMessage(role, text) {
+  const isUser = role === 'user';
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg ' + (isUser ? 'user' : 'agent');
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar ' + (isUser ? 'avatar-user' : 'avatar-agent');
+  avatar.textContent = isUser ? 'A' : 'IM';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = formatText(text);
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(bubble);
+  messagesEl.appendChild(wrapper);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function showTyping() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg agent';
+  wrapper.id = 'typing';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar avatar-agent';
+  avatar.textContent = 'IM';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.style.padding = '12px 14px';
+  bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(bubble);
+  messagesEl.appendChild(wrapper);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+async function callAPI(userMessage) {
+  history.push({ role: 'user', content: userMessage });
+  showTyping();
+  sendBtn.disabled = true;
+  isLoading = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: SYSTEM_PROMPT,
+        messages: history
+      })
+    });
+    const data = await resp.json();
+    removeTyping();
+    if (data.error) {
+      addMessage('assistant', '⚠️ Errore API: ' + data.error.message);
+    } else {
+      const reply = data.content?.map(b => b.type === 'text' ? b.text : '').join('') || 'Nessuna risposta.';
+      history.push({ role: 'assistant', content: reply });
+      addMessage('assistant', reply);
+    }
+  } catch(e) {
+    removeTyping();
+    addMessage('assistant', '⚠️ Errore di rete: ' + e.message);
+  }
+  sendBtn.disabled = false;
+  isLoading = false;
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const text = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  addMessage('user', text);
+  await callAPI(text);
+}
+
+function sendQuick(text) {
+  if (isLoading) return;
+  addMessage('user', text);
+  callAPI(text);
+}
+
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
+});
+
+async function autoStart() {
+  await callAPI('Avvia la prima riunione mensile IMA. Produci subito la scheda mercato con trend attuali del settore infissi in Italia, incentivi fiscali attivi, segnali competitivi area Pistoia-Prato. Poi fai le tre domande prioritarie per calibrare i tre orizzonti.');
+}
+</script>
+</body>
+</html>
