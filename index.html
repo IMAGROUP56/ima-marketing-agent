@@ -67,6 +67,54 @@
     border-radius: 20px;
   }
 
+  .apikey-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .apikey-wrap label {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .apikey-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: monospace;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .apikey-input:focus { border-color: var(--accent); }
+  .apikey-input::placeholder { color: var(--muted); }
+
+  .apikey-save {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .apikey-save:hover { opacity: 0.8; }
+
+  .apikey-ok {
+    font-size: 13px;
+    color: var(--green);
+    display: none;
+  }
+
   /* LAYOUT */
   .main {
     display: flex;
@@ -601,6 +649,12 @@
 
 <header>
   <div class="logo">IMA <span>Marketing</span> Agent</div>
+  <div class="apikey-wrap">
+    <label>API Key:</label>
+    <input class="apikey-input" id="apikeyInput" type="password" placeholder="sk-ant-..." />
+    <button class="apikey-save" onclick="saveApiKey()">Salva</button>
+    <span class="apikey-ok" id="apikeyOk">✅ Attiva</span>
+  </div>
   <div class="badge">● Attivo</div>
 </header>
 
@@ -742,13 +796,29 @@ let conversationHistory = [];
 let pendingFiles = [];
 let currentModule = 'chat';
 let systemPrompt = localStorage.getItem('ima_system_prompt') || DEFAULT_SYSTEM_PROMPT;
+let apiKey = localStorage.getItem('ima_api_key') || '';
 
 // ─── INIT ─────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('systemPromptArea').value = systemPrompt;
+  // Load saved API key
+  if (apiKey) {
+    document.getElementById('apikeyInput').value = apiKey;
+    document.getElementById('apikeyOk').style.display = 'inline';
+  }
   startSession();
   setupDragDrop();
 });
+
+// ─── API KEY ──────────────────────────────────────────────
+function saveApiKey() {
+  apiKey = document.getElementById('apikeyInput').value.trim();
+  if (!apiKey) return;
+  localStorage.setItem('ima_api_key', apiKey);
+  const ok = document.getElementById('apikeyOk');
+  ok.style.display = 'inline';
+  setTimeout(() => { ok.style.display = 'none'; }, 3000);
+}
 
 // ─── SESSION START ────────────────────────────────────────
 async function startSession() {
@@ -855,10 +925,18 @@ async function sendMessage() {
 
 // ─── CLAUDE API ───────────────────────────────────────────
 async function callClaude(messages) {
+  if (!apiKey) {
+    return '⚠️ API Key mancante — inserisci la tua chiave Anthropic nel campo in alto (sk-ant-...) e clicca Salva.';
+  }
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
