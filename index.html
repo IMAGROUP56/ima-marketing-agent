@@ -1,935 +1,248 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="IMA Agent">
 <title>IMA Marketing Agent</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
-
-  :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2333;
-    --border: #2a2f42;
-    --accent: #4f7cff;
-    --accent2: #7c5cfc;
-    --green: #2ecc8a;
-    --yellow: #f5c542;
-    --red: #ff5f5f;
-    --text: #e8eaf0;
-    --muted: #7a8099;
-    --font-display: 'DM Serif Display', serif;
-    --font-body: 'Inter', sans-serif;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 15px;
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* HEADER */
-  header {
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface);
-  }
-
-  .logo {
-    font-family: var(--font-display);
-    font-size: 22px;
-    color: var(--text);
-    letter-spacing: 0.01em;
-  }
-
-  .logo span { color: var(--accent); }
-
-  .badge {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--green);
-    background: rgba(46,204,138,0.1);
-    border: 1px solid rgba(46,204,138,0.25);
-    padding: 4px 10px;
-    border-radius: 20px;
-  }
-
-  .apikey-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .apikey-wrap label {
-    font-size: 12px;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-
-  .apikey-input {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 12px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: monospace;
-    width: 260px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .apikey-input:focus { border-color: var(--accent); }
-  .apikey-input::placeholder { color: var(--muted); }
-
-  .apikey-save {
-    background: var(--accent);
-    border: none;
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  .apikey-save:hover { opacity: 0.8; }
-
-  .apikey-ok {
-    font-size: 13px;
-    color: var(--green);
-    display: none;
-  }
-
-  /* LAYOUT */
-  .main {
-    display: flex;
-    flex: 1;
-    height: calc(100vh - 65px);
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width: 260px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 20px 0;
-    flex-shrink: 0;
-  }
-
-  .sidebar-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 20px 10px;
-  }
-
-  .sidebar-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    border: none;
-    background: none;
-    text-align: left;
-    width: 100%;
-    transition: all 0.15s;
-    border-left: 3px solid transparent;
-  }
-
-  .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-btn.active {
-    background: var(--surface2);
-    color: var(--accent);
-    border-left-color: var(--accent);
-    font-weight: 500;
-  }
-
-  .sidebar-btn .icon { font-size: 16px; width: 20px; text-align: center; }
-
-  .sidebar-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 12px 20px;
-  }
-
-  /* CHAT AREA */
-  .chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .chat-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface);
-  }
-
-  .chat-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .chat-subtitle {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .horizon-pills {
-    display: flex;
-    gap: 8px;
-  }
-
-  .pill {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    letter-spacing: 0.04em;
-  }
-
-  .pill-red { background: rgba(255,95,95,0.12); color: var(--red); border: 1px solid rgba(255,95,95,0.25); }
-  .pill-yellow { background: rgba(245,197,66,0.12); color: var(--yellow); border: 1px solid rgba(245,197,66,0.25); }
-  .pill-blue { background: rgba(79,124,255,0.12); color: var(--accent); border: 1px solid rgba(79,124,255,0.25); }
-
-  /* MESSAGES */
-  .messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    scroll-behavior: smooth;
-  }
-
-  .messages::-webkit-scrollbar { width: 4px; }
-  .messages::-webkit-scrollbar-track { background: transparent; }
-  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  .msg {
-    display: flex;
-    gap: 12px;
-    max-width: 820px;
-  }
-
-  .msg.user { flex-direction: row-reverse; align-self: flex-end; }
-
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .avatar-agent { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
-  .avatar-user { background: var(--surface2); border: 1px solid var(--border); }
-
-  .bubble {
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.65;
-    max-width: 680px;
-  }
-
-  .bubble-agent {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-top-left-radius: 4px;
-  }
-
-  .bubble-user {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    border-top-right-radius: 4px;
-  }
-
-  .bubble strong { color: var(--accent); font-weight: 600; }
-  .bubble-user strong { color: #fff; }
-
-  .bubble .tag {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 4px;
-    margin-right: 4px;
-    letter-spacing: 0.04em;
-  }
-
-  .tag-red { background: rgba(255,95,95,0.15); color: var(--red); }
-  .tag-yellow { background: rgba(245,197,66,0.15); color: var(--yellow); }
-  .tag-blue { background: rgba(79,124,255,0.15); color: var(--accent); }
-  .tag-green { background: rgba(46,204,138,0.15); color: var(--green); }
-
-  .bubble ul { padding-left: 18px; margin-top: 6px; }
-  .bubble li { margin-bottom: 4px; }
-
-  .bubble .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 12px 0 6px;
-  }
-
-  .timestamp {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-    padding: 0 4px;
-  }
-
-  .msg.user .timestamp { text-align: right; }
-
-  /* FILE PREVIEW */
-  .file-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
-    margin-top: 8px;
-  }
-
-  .file-chip .file-icon { font-size: 18px; }
-  .file-chip .file-name { font-weight: 500; color: var(--text); }
-  .file-chip .file-type { font-size: 11px; color: var(--muted); }
-
-  /* INPUT AREA */
-  .input-area {
-    padding: 16px 24px 20px;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .input-wrapper {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-
-  .input-wrapper:focus-within { border-color: var(--accent); }
-
-  /* DROPZONE */
-  .dropzone {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    background: rgba(79,124,255,0.06);
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .dropzone.visible { display: flex; }
-  .dropzone:hover { background: rgba(79,124,255,0.12); color: var(--text); }
-  .dropzone .dz-icon { font-size: 18px; }
-
-  /* FILE QUEUE */
-  .file-queue {
-    display: none;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .file-queue.visible { display: flex; }
-
-  .fq-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: var(--text);
-  }
-
-  .fq-item .fq-remove {
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1;
-    margin-left: 2px;
-  }
-
-  .fq-item .fq-remove:hover { color: var(--red); }
-
-  .input-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    padding: 10px 12px;
-  }
-
-  .attach-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-    transition: all 0.15s;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-
-  .attach-btn:hover { color: var(--accent); background: rgba(79,124,255,0.1); }
-
-  textarea {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 14px;
-    line-height: 1.5;
-    resize: none;
-    min-height: 40px;
-    max-height: 140px;
-    padding: 6px 0;
-  }
-
-  textarea::placeholder { color: var(--muted); }
-
-  .send-btn {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    color: #fff;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-    transition: opacity 0.15s;
-  }
-
-  .send-btn:hover { opacity: 0.85; }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .input-hints {
-    display: flex;
-    gap: 16px;
-    padding: 6px 16px 0;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .hint-item { display: flex; align-items: center; gap: 4px; }
-
-  /* TYPING INDICATOR */
-  .typing {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 14px;
-  }
-
-  .typing span {
-    width: 6px; height: 6px;
-    background: var(--muted);
-    border-radius: 50%;
-    animation: bounce 1.2s infinite;
-  }
-
-  .typing span:nth-child(2) { animation-delay: 0.2s; }
-  .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-5px); }
-  }
-
-  /* HIDDEN FILE INPUT */
-  #fileInput { display: none; }
-
-  /* DRAG OVERLAY */
-  .drag-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(79,124,255,0.08);
-    border: 3px dashed var(--accent);
-    border-radius: 8px;
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: var(--accent);
-    font-weight: 600;
-    pointer-events: none;
-  }
-
-  .drag-overlay.active { display: flex; }
-
-  /* SYSTEM PROMPT MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-title {
-    font-family: var(--font-display);
-    font-size: 18px;
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 20px;
-    cursor: pointer;
-  }
-
-  .modal-close:hover { color: var(--text); }
-
-  .modal-body {
-    padding: 20px 24px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .modal-body textarea {
-    width: 100%;
-    min-height: 300px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    color: var(--text);
-    font-size: 13px;
-    line-height: 1.6;
-    resize: vertical;
-  }
-
-  .modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  .btn {
-    padding: 8px 18px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: opacity 0.15s;
-  }
-
-  .btn-ghost {
-    background: var(--surface2);
-    color: var(--muted);
-    border: 1px solid var(--border);
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-  }
-
-  .btn:hover { opacity: 0.8; }
-
-  /* SCROLLBAR */
-  .modal-body::-webkit-scrollbar { width: 4px; }
-  .modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  @media (max-width: 640px) {
-    .sidebar { display: none; }
-    .horizon-pills { display: none; }
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; display: flex; flex-direction: column; height: 100dvh; }
+#app { display: flex; flex-direction: column; width: 100%; height: 100%; background: #fff; max-width: 780px; margin: 0 auto; }
+#header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #e2e0d8; background: #f9f8f5; flex-shrink: 0; padding-top: max(12px, env(safe-area-inset-top)); }
+.logo-badge { width: 34px; height: 34px; border-radius: 9px; background: #0F6E56; color: #9FE1CB; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#header-info { flex: 1; min-width: 0; }
+#header-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+#header-sub { font-size: 11px; color: #888; margin-top: 1px; }
+.horizon-pills { display: flex; gap: 4px; flex-shrink: 0; }
+.pill { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; border: 1px solid; white-space: nowrap; }
+.pill-r { background: #FAECE7; color: #993C1D; border-color: #F0997B; }
+.pill-y { background: #FAEEDA; color: #854F0B; border-color: #EF9F27; }
+.pill-b { background: #E6F1FB; color: #185FA5; border-color: #85B7EB; }
+#key-indicator { font-size: 11px; color: #0F6E56; background: #E1F5EE; padding: 3px 8px; border-radius: 20px; cursor: pointer; border: 1px solid #9FE1CB; display: none; flex-shrink: 0; }
+
+#api-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; gap: 14px; overflow-y: auto; }
+.key-icon { font-size: 44px; }
+#api-screen h3 { font-size: 18px; font-weight: 600; color: #1a1a1a; text-align: center; }
+#api-screen .desc { font-size: 14px; color: #666; text-align: center; line-height: 1.6; max-width: 340px; }
+#api-input { width: 100%; max-width: 400px; padding: 12px 14px; font-size: 14px; font-family: 'Courier New', monospace; border-radius: 12px; border: 1px solid #d0cec6; background: #faf9f7; color: #1a1a1a; outline: none; }
+#api-input:focus { border-color: #0F6E56; box-shadow: 0 0 0 3px rgba(15,110,86,0.12); }
+#api-submit { width: 100%; max-width: 400px; padding: 14px; font-size: 15px; font-weight: 600; border-radius: 12px; background: #0F6E56; color: #E1F5EE; border: none; cursor: pointer; }
+#api-submit:active { opacity: 0.82; }
+#api-error { font-size: 13px; color: #993C1D; background: #FAECE7; padding: 10px 16px; border-radius: 10px; display: none; max-width: 400px; text-align: center; }
+.api-note { font-size: 12px; color: #999; text-align: center; max-width: 340px; line-height: 1.6; }
+.api-note a { color: #0F6E56; }
+.api-steps { width: 100%; max-width: 400px; background: #f9f8f5; border-radius: 12px; padding: 16px; border: 1px solid #e2e0d8; }
+.api-steps p { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
+.api-steps ol { padding-left: 18px; }
+.api-steps li { font-size: 13px; color: #555; line-height: 1.7; }
+.api-steps li a { color: #0F6E56; }
+
+#chat-screen { flex: 1; display: none; flex-direction: column; overflow: hidden; min-height: 0; }
+#messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; min-height: 0; -webkit-overflow-scrolling: touch; }
+.msg { display: flex; gap: 8px; align-items: flex-start; }
+.msg.user { flex-direction: row-reverse; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.avatar-agent { background: #0F6E56; color: #9FE1CB; }
+.avatar-user { background: #E6F1FB; color: #185FA5; }
+.bubble { max-width: 88%; padding: 10px 13px; border-radius: 16px; font-size: 14px; line-height: 1.65; color: #1a1a1a; white-space: pre-wrap; word-break: break-word; border: 1px solid #e8e6de; background: #fff; }
+.msg.agent .bubble { border-bottom-left-radius: 4px; }
+.msg.user .bubble { border-bottom-right-radius: 4px; background: #f5f4f0; border-color: #e2e0d8; }
+.bubble strong { font-weight: 600; }
+.tag-r { color: #993C1D; font-weight: 600; }
+.tag-y { color: #854F0B; font-weight: 600; }
+.tag-b { color: #185FA5; font-weight: 600; }
+.typing-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #bbb; animation: blink 1.2s infinite; margin: 0 2px; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+#footer { border-top: 1px solid #e2e0d8; padding: 10px 12px; background: #fff; flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+.quick-btns { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.quick-btns::-webkit-scrollbar { display: none; }
+.qb { font-size: 12px; padding: 6px 12px; border-radius: 20px; border: 1px solid #d0cec6; background: #f9f8f5; color: #555; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.qb:active { background: #f0faf6; border-color: #0F6E56; color: #0F6E56; }
+#input-row { display: flex; gap: 8px; align-items: flex-end; }
+#user-input { flex: 1; resize: none; font-size: 15px; padding: 10px 13px; border-radius: 22px; min-height: 44px; max-height: 110px; overflow-y: auto; line-height: 1.5; font-family: inherit; background: #f5f4f0; border: 1px solid #d0cec6; color: #1a1a1a; outline: none; }
+#user-input:focus { border-color: #0F6E56; background: #fff; }
+#send-btn { width: 44px; height: 44px; border-radius: 50%; background: #0F6E56; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #E1F5EE; flex-shrink: 0; font-size: 20px; }
+#send-btn:active { opacity: 0.8; transform: scale(0.95); }
+#send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 </style>
 </head>
 <body>
-
-<!-- DRAG OVERLAY -->
-<div class="drag-overlay" id="dragOverlay">📎 Rilascia il file per allegarlo</div>
-
-<!-- MODAL SYSTEM PROMPT -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">System Prompt</div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+<div id="app">
+  <div id="header">
+    <div class="logo-badge">IMA</div>
+    <div id="header-info">
+      <div id="header-title">IMA Marketing Agent</div>
+      <div id="header-sub">IMA Infissi S.r.l. — Agente autonomo</div>
     </div>
-    <div class="modal-body">
-      <textarea id="systemPromptArea"></textarea>
+    <div class="horizon-pills" id="pills">
+      <span class="pill pill-r">🔴</span>
+      <span class="pill pill-y">🟡</span>
+      <span class="pill pill-b">🔵</span>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Annulla</button>
-      <button class="btn btn-primary" onclick="savePrompt()">Salva</button>
-    </div>
+    <span id="key-indicator" onclick="resetKey()">🔑 Connesso</span>
   </div>
-</div>
 
-<header>
-  <div class="logo">IMA <span>Marketing</span> Agent</div>
-  <div class="apikey-wrap">
-    <label>API Key:</label>
-    <input class="apikey-input" id="apikeyInput" type="password" placeholder="sk-ant-..." />
-    <button class="apikey-save" onclick="saveApiKey()">Salva</button>
-    <span class="apikey-ok" id="apikeyOk">✅ Attiva</span>
-  </div>
-  <div class="badge">● Attivo</div>
-</header>
-
-<div class="main">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-label">Moduli</div>
-    <button class="sidebar-btn active" onclick="setModule(this, 'chat')">
-      <span class="icon">💬</span> Sessione Mensile
-    </button>
-    <button class="sidebar-btn" onclick="setModule(this, 'ads')">
-      <span class="icon">📊</span> ADS Analytics
-    </button>
-    <button class="sidebar-btn" onclick="setModule(this, 'pipeline')">
-      <span class="icon">🔁</span> Pipeline Commerciale
-    </button>
-    <button class="sidebar-btn" onclick="setModule(this, 'territory')">
-      <span class="icon">🏘️</span> Azioni Territoriali
-    </button>
-    <button class="sidebar-btn" onclick="setModule(this, 'investor')">
-      <span class="icon">📣</span> Narrativa Investitori
-    </button>
-    <hr class="sidebar-divider" />
-    <div class="sidebar-label">Strumenti</div>
-    <button class="sidebar-btn" onclick="openModal()">
-      <span class="icon">⚙️</span> System Prompt
-    </button>
-    <button class="sidebar-btn" onclick="clearChat()">
-      <span class="icon">🗑️</span> Nuova Sessione
-    </button>
-  </aside>
-
-  <!-- CHAT -->
-  <div class="chat-area">
-    <div class="chat-header">
-      <div>
-        <div class="chat-title" id="chatTitle">Sessione Mensile</div>
-        <div class="chat-subtitle">IMA Infissi S.r.l. — Pistoia & Prato</div>
-      </div>
-      <div class="horizon-pills">
-        <span class="pill pill-red">🔴 0-4 sett.</span>
-        <span class="pill pill-yellow">🟡 4-8 sett.</span>
-        <span class="pill pill-blue">🔵 24 mesi</span>
-      </div>
+  <div id="api-screen">
+    <div class="key-icon">🔑</div>
+    <h3>Inserisci la tua API Key</h3>
+    <p class="desc">La chiave resta solo nel tuo browser e non viene salvata.</p>
+    <div class="api-steps">
+      <p>Come ottenere la chiave:</p>
+      <ol>
+        <li>Vai su <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></li>
+        <li>Accedi con la stessa email di Claude.ai</li>
+        <li>Clicca <strong>Create Key</strong> e copia la chiave</li>
+        <li>Vai su <strong>Billing</strong> e aggiungi $5 di credito</li>
+      </ol>
     </div>
+    <input id="api-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" />
+    <div id="api-error">Chiave non valida. Deve iniziare con sk-ant-</div>
+    <button id="api-submit" onclick="startWithKey()">Avvia IMA Marketing Agent ↗</button>
+    <p class="api-note">Con $5 di credito hai circa 50–100 riunioni mensili.</p>
+  </div>
 
-    <div class="messages" id="messages"></div>
-
-    <div class="input-area">
-      <div class="input-wrapper" id="inputWrapper">
-
-        <!-- DROPZONE -->
-        <div class="dropzone" id="dropzone" onclick="triggerFile()">
-          <span class="dz-icon">📎</span>
-          <span>Clicca per allegare un file — CSV, PDF, PNG, JPG accettati</span>
-        </div>
-
-        <!-- FILE QUEUE -->
-        <div class="file-queue" id="fileQueue"></div>
-
-        <div class="input-row">
-          <button class="attach-btn" onclick="toggleDropzone()" title="Allega file">📎</button>
-          <textarea
-            id="userInput"
-            placeholder="Scrivi un messaggio o allega un file per l'analisi…"
-            rows="1"
-            onkeydown="handleKey(event)"
-            oninput="autoResize(this)"
-          ></textarea>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
-        </div>
-
-        <div class="input-hints">
-          <span class="hint-item">📊 CSV — dati vendite/preventivi</span>
-          <span class="hint-item">🖼️ PNG/JPG — screenshot dashboard</span>
-          <span class="hint-item">📄 PDF — report campagne</span>
-        </div>
+  <div id="chat-screen">
+    <div id="messages"></div>
+    <div id="footer">
+      <div class="quick-btns">
+        <button class="qb" onclick="sendQuick('Avvia riunione mensile')">🗓️ Riunione mensile</button>
+        <button class="qb" onclick="sendQuick('Analizza ADS questo mese')">📊 Analisi ADS</button>
+        <button class="qb" onclick="sendQuick('Azioni immediate questa settimana')">🔴 Immediato</button>
+        <button class="qb" onclick="sendQuick('Aggiornamento espansione Firenze-Mare')">🔵 Strategico</button>
+        <button class="qb" onclick="sendQuick('Analizza pipeline preventivi questo mese')">📋 Pipeline</button>
+        <button class="qb" onclick="sendQuick('Stato narrativa investitori')">📣 Investitori</button>
       </div>
-      <input type="file" id="fileInput" multiple accept=".csv,.pdf,.png,.jpg,.jpeg" onchange="handleFileSelect(event)" />
+      <div id="input-row">
+        <textarea id="user-input" placeholder="Scrivi qui…" rows="1"></textarea>
+        <button id="send-btn" onclick="sendMessage()">↑</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-// ─── STATE ───────────────────────────────────────────────
-const DEFAULT_SYSTEM_PROMPT = `Sei IMA Marketing Agent, un agente AI specializzato in marketing operativo proattivo per IMA Infissi S.r.l. — azienda toscana fondata nel 1956, con showroom a Pistoia e Prato.
+const SYSTEM_PROMPT = `Sei IMA Marketing Agent per IMA Infissi S.r.l. (Pistoia/Prato, fondata 1956, infissi e serramenti) e IMA Green (fotovoltaico e accumulo).
 
-NON ASPETTI MAI. Sei attivo, ciclico e autonomo. Sei tu ad aprire ogni sessione, fare le domande, raccogliere i dati, analizzare e produrre output concreti.
+RUOLO: Agente autonomo proattivo. Apri sempre tu la sessione. Guidi, analizzi, produci output. Mai aspettare.
 
-OBIETTIVO STRATEGICO: supportare la crescita strutturata verso oltre 20 collaboratori e 6 showroom lungo la direttrice Firenze–Mare in 7 anni.
+OBIETTIVO: Supportare crescita verso 6 showroom e 20+ collaboratori lungo direttrice Firenze-Mare in 7 anni.
 
-TEAM: Andrea (titolare), Fabio Mazzanti (co-titolare tecnico), Luca (vendite), Biagio (commerciale).
+TEAM: Andrea (Titolare), Fabio Mazzanti (Co-titolare tecnico), Luca (vendite), Biagio (commerciale).
 
-TRE ORIZZONTI TEMPORALI — sempre presenti in ogni sessione:
-🔴 ORIZZONTE 1 (0-4 settimane): azioni immediate, materiali pronti
-🟡 ORIZZONTE 2 (4-8 settimane): campagne in preparazione, prevenzione
-🔵 ORIZZONTE 3 (24 mesi): milestone espansione, investitori, posizionamento
+TRE ORIZZONTI — sempre presenti in ogni risposta:
+🔴 PRESENTE (0-4 sett.): azioni immediate, output concreti
+🟡 BREVE (4-8 sett.): campagne in preparazione, anti-calo
+🔵 STRATEGICO (24 mesi): milestone espansione, investimenti
 
-RIUNIONE MENSILE — ordine del giorno fisso:
-1. Scheda mercato (trend, keyword, incentivi attivi)
-2. Review mese precedente
-3. Analisi dati (ADS, pipeline, segnali deboli)
-4. 🔴 Piano immediato (0-4 sett.)
-5. 🟡 Piano breve (4-8 sett.)
-6. 🔵 Aggiornamento strategico (24 mesi)
-7. Domande ad Andrea (max 3)
-8. Output sessione
+RIUNIONE MENSILE — struttura fissa:
+1. 🌐 MERCATO: trend settore infissi Italia, keyword, incentivi fiscali (Ecobonus, detrazioni 50-65%, Conto Termico), segnali competitivi Pistoia-Prato
+2. 📋 REVIEW mese precedente
+3. 📊 DATI: ADS, pipeline, segnali deboli
+4. 🔴 Piano immediato con materiali pronti
+5. 🟡 Piano breve con campagne in costruzione
+6. 🔵 Aggiornamento strategico Firenze-Mare
+7. ❓ Max 3 domande ad Andrea (ordinate per priorità)
+8. 📎 Riepilogo output prodotti
 
-MODULO ALLEGATI — PRIORITÀ ASSOLUTA:
-Quando Andrea allega un file (CSV, PDF, PNG, JPG), analizzalo IMMEDIATAMENTE senza aspettare istruzioni aggiuntive.
-- CSV/Excel: leggi dati, identifica trend, anomalie, picchi, confronta periodi
-- PNG/JPG: leggi dashboard o screenshot ADS, estrai metriche, produci analisi completa
-- PDF: estrai contenuti rilevanti, sintetizza, identifica opportunità e rischi
-Per ogni allegato produci sempre: verdetto sintetico + diagnosi + almeno 2 azioni concrete sui tre orizzonti 🔴🟡🔵
+FILTRO PMI: budget <€500, esecuzione <2 settimane, KPI tracciabile, scalabile nei futuri showroom.
 
-MODULO ADS ANALYTICS: analizza CPM, CTR, CPC, CPL, ROAS, Frequenza, Conversioni. Produci: verdetto, diagnosi per metrica, causa probabile, 3 azioni correttive, keyword suggerite, A/B test, proiezione.
+REGOLE:
+- Scrivi sempre in italiano
+- Tre orizzonti sempre presenti
+- Max 3 domande per sessione
+- Almeno 2 materiali pronti per sessione
+- Alert strategico con 8 settimane di anticipo per milestone
+- Filo rosso sempre: espansione Firenze-Mare
 
-MODULO PIPELINE: chiedi mensilmente preventivi aperti/chiusi, abbandoni, segmenti deboli. Produci diagnosi + materiale pronto.
+Data: ${new Date().toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'})}`;
 
-MODULO INTELLIGENCE: ricerca autonoma di keyword trending, incentivi attivi, segnali competitivi locali, dinamiche stagionali.
+let history = [];
+let isLoading = false;
+let apiKey = '';
 
-MODULO INVESTOR COMMUNICATION: ogni sessione verifica coerenza narrativa verso investitori (Next Holding Firenze, MGH Holding). Alert con 8 settimane di anticipo su milestone significativi.
+const messagesEl = document.getElementById('messages');
+const inputEl = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
 
-MODULO AZIONI TERRITORIALI: ogni proposta deve essere sotto €500, realizzabile in 2 settimane, misurabile, radicata nel territorio Pistoia/Prato/Toscana e scalabile ai futuri showroom.
+const savedKey = sessionStorage.getItem('ima_api_key');
+if (savedKey) document.getElementById('api-input').value = savedKey;
 
-REGOLE NON DEROGABILI:
-1. Sei sempre tu ad aprire la sessione
-2. Cadenza mensile fissa come riunione interna
-3. Tre orizzonti sempre presenti in ogni output
-4. Alert strategici con 8 settimane di anticipo
-5. Max 3 domande per sessione, ordinate per priorità
-6. Output concreti sempre — almeno 2 materiali pronti
-7. Scrivi sempre in italiano
-8. Il filo rosso è sempre l'espansione Firenze-Mare
-
-PRIMA SESSIONE: apri con scheda mercato autonoma + 3 domande prioritarie: 1) mese peggiore vendite, 2) ADS recenti da analizzare, 3) prossima apertura showroom e città.`;
-
-let conversationHistory = [];
-let pendingFiles = [];
-let currentModule = 'chat';
-let systemPrompt = localStorage.getItem('ima_system_prompt') || DEFAULT_SYSTEM_PROMPT;
-let apiKey = localStorage.getItem('ima_api_key') || '';
-
-// ─── INIT ─────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('systemPromptArea').value = systemPrompt;
-  // Load saved API key
-  if (apiKey) {
-    document.getElementById('apikeyInput').value = apiKey;
-    document.getElementById('apikeyOk').style.display = 'inline';
-  }
-  startSession();
-  setupDragDrop();
-});
-
-// ─── API KEY ──────────────────────────────────────────────
-function saveApiKey() {
-  apiKey = document.getElementById('apikeyInput').value.trim();
-  if (!apiKey) return;
-  localStorage.setItem('ima_api_key', apiKey);
-  const ok = document.getElementById('apikeyOk');
-  ok.style.display = 'inline';
-  setTimeout(() => { ok.style.display = 'none'; }, 3000);
+function startWithKey() {
+  const key = document.getElementById('api-input').value.trim();
+  const errEl = document.getElementById('api-error');
+  if (!key.startsWith('sk-ant-')) { errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  apiKey = key;
+  sessionStorage.setItem('ima_api_key', key);
+  document.getElementById('api-screen').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'flex';
+  document.getElementById('key-indicator').style.display = 'inline-flex';
+  document.getElementById('pills').style.display = 'none';
+  autoStart();
 }
 
-// ─── SESSION START ────────────────────────────────────────
-async function startSession() {
-  showTyping();
-  const response = await callClaude([{ role: 'user', content: 'Avvia la sessione mensile autonoma.' }]);
-  removeTyping();
-  appendMessage('agent', response);
+function resetKey() {
+  if (!confirm('Cambiare API key? La conversazione verrà persa.')) return;
+  apiKey = ''; history = []; messagesEl.innerHTML = '';
+  sessionStorage.removeItem('ima_api_key');
+  document.getElementById('chat-screen').style.display = 'none';
+  document.getElementById('api-screen').style.display = 'flex';
+  document.getElementById('key-indicator').style.display = 'none';
+  document.getElementById('pills').style.display = 'flex';
+  document.getElementById('api-input').value = '';
 }
 
-// ─── MODULE SWITCHER ──────────────────────────────────────
-const moduleTitles = {
-  chat: 'Sessione Mensile',
-  ads: 'ADS Analytics',
-  pipeline: 'Pipeline Commerciale',
-  territory: 'Azioni Territoriali',
-  investor: 'Narrativa Investitori'
-};
+document.getElementById('api-input').addEventListener('keydown', e => { if (e.key === 'Enter') startWithKey(); });
 
-const modulePrompts = {
-  ads: 'Attiva il modulo ADS Analytics. Chiedi ad Andrea i dati della campagna più recente e preparati ad analizzarli in dettaglio.',
-  pipeline: 'Attiva il modulo Pipeline Commerciale. Poni le domande mensili sulla pipeline preventivi.',
-  territory: 'Attiva il modulo Azioni Territoriali. Proponi 2 azioni territoriali concrete per questo mese basandoti sul contesto attuale.',
-  investor: 'Attiva il modulo Narrativa Investitori. Esegui la checklist mensile e segnala lo stato della coerenza narrativa verso Next Holding e MGH Holding.'
-};
-
-function setModule(btn, mod) {
-  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentModule = mod;
-  document.getElementById('chatTitle').textContent = moduleTitles[mod] || 'Sessione Mensile';
-  if (mod !== 'chat' && modulePrompts[mod]) {
-    sendAutoMessage(modulePrompts[mod]);
-  }
+function formatText(t) {
+  return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/🔴/g, '<span class="tag-r">🔴</span>')
+    .replace(/🟡/g, '<span class="tag-y">🟡</span>')
+    .replace(/🔵/g, '<span class="tag-b">🔵</span>');
 }
 
-async function sendAutoMessage(content) {
-  showTyping();
-  conversationHistory.push({ role: 'user', content });
-  const response = await callClaude(conversationHistory);
-  removeTyping();
-  conversationHistory.push({ role: 'assistant', content: response });
-  appendMessage('agent', response);
+function addMessage(role, text) {
+  const isUser = role === 'user';
+  const w = document.createElement('div');
+  w.className = 'msg ' + (isUser ? 'user' : 'agent');
+  const av = document.createElement('div');
+  av.className = 'avatar ' + (isUser ? 'avatar-user' : 'avatar-agent');
+  av.textContent = isUser ? 'A' : 'IM';
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  b.innerHTML = formatText(text);
+  w.appendChild(av); w.appendChild(b);
+  messagesEl.appendChild(w);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-// ─── SEND MESSAGE ─────────────────────────────────────────
-async function sendMessage() {
-  const textarea = document.getElementById('userInput');
-  const text = textarea.value.trim();
-
-  if (!text && pendingFiles.length === 0) return;
-
-  // Build user message content
-  let userContent = [];
-  let userDisplayText = text;
-  let fileDisplayHtml = '';
-
-  // Process files
-  for (const f of pendingFiles) {
-    if (f.type.startsWith('image/')) {
-      const b64 = await toBase64(f);
-      userContent.push({ type: 'image', source: { type: 'base64', media_type: f.type, data: b64 } });
-      fileDisplayHtml += `<div class="file-chip"><span class="file-icon">🖼️</span><div><div class="file-name">${f.name}</div><div class="file-type">Immagine — analisi ADS/dashboard</div></div></div>`;
-    } else if (f.type === 'application/pdf') {
-      const b64 = await toBase64(f);
-      userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } });
-      fileDisplayHtml += `<div class="file-chip"><span class="file-icon">📄</span><div><div class="file-name">${f.name}</div><div class="file-type">PDF — analisi documento</div></div></div>`;
-    } else if (f.name.endsWith('.csv') || f.type.includes('csv')) {
-      const text2 = await f.text();
-      userContent.push({ type: 'text', text: `ALLEGATO CSV — ${f.name}:\n\n${text2}` });
-      fileDisplayHtml += `<div class="file-chip"><span class="file-icon">📊</span><div><div class="file-name">${f.name}</div><div class="file-type">CSV — analisi dati</div></div></div>`;
-    }
-  }
-
-  if (text) userContent.push({ type: 'text', text });
-
-  // Single string if no files
-  const apiContent = userContent.length === 1 && userContent[0].type === 'text'
-    ? userContent[0].text
-    : userContent.length > 0 ? userContent : text;
-
-  // Show user bubble
-  const displayHtml = (fileDisplayHtml ? fileDisplayHtml + (text ? `<div style="margin-top:8px">${escHtml(text)}</div>` : '') : escHtml(text));
-  appendMessage('user', displayHtml, true);
-
-  // Reset input
-  textarea.value = '';
-  autoResize(textarea);
-  clearFileQueue();
-  hideDropzone();
-
-  // Add to history
-  conversationHistory.push({ role: 'user', content: apiContent });
-
-  // Call API
-  showTyping();
-  document.getElementById('sendBtn').disabled = true;
-  const response = await callClaude(conversationHistory);
-  removeTyping();
-  document.getElementById('sendBtn').disabled = false;
-
-  conversationHistory.push({ role: 'assistant', content: response });
-  appendMessage('agent', response);
+function showTyping() {
+  const w = document.createElement('div');
+  w.className = 'msg agent'; w.id = 'typing';
+  const av = document.createElement('div');
+  av.className = 'avatar avatar-agent'; av.textContent = 'IM';
+  const b = document.createElement('div');
+  b.className = 'bubble'; b.style.padding = '12px 14px';
+  b.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  w.appendChild(av); w.appendChild(b);
+  messagesEl.appendChild(w);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-// ─── CLAUDE API ───────────────────────────────────────────
-async function callClaude(messages) {
-  if (!apiKey) {
-    return '⚠️ API Key mancante — inserisci la tua chiave Anthropic nel campo in alto (sk-ant-...) e clicca Salva.';
-  }
+function removeTyping() { const el = document.getElementById('typing'); if (el) el.remove(); }
+
+async function callAPI(userMessage) {
+  history.push({ role: 'user', content: userMessage });
+  showTyping(); sendBtn.disabled = true; isLoading = true;
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -939,191 +252,47 @@ async function callClaude(messages) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages
+        max_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        messages: history
       })
     });
-    const data = await res.json();
-    if (data.error) return `⚠️ Errore API: ${data.error.message}`;
-    return data.content?.map(b => b.text || '').join('\n') || '(nessuna risposta)';
-  } catch (e) {
-    return `⚠️ Errore di connessione: ${e.message}`;
-  }
-}
-
-// ─── UI HELPERS ───────────────────────────────────────────
-function appendMessage(role, content, isHtml = false) {
-  const messages = document.getElementById('messages');
-  const now = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-
-  const avatar = role === 'agent'
-    ? `<div class="avatar avatar-agent">🤖</div>`
-    : `<div class="avatar avatar-user">👤</div>`;
-
-  const bubbleClass = role === 'agent' ? 'bubble-agent' : 'bubble-user';
-  const formatted = isHtml ? content : formatMarkdown(content);
-
-  div.innerHTML = `
-    ${avatar}
-    <div>
-      <div class="bubble ${bubbleClass}">${formatted}</div>
-      <div class="timestamp">${now}</div>
-    </div>
-  `;
-
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function formatMarkdown(text) {
-  return text
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/🔴([^\n]*)/g, '<span class="tag tag-red">🔴</span>$1')
-    .replace(/🟡([^\n]*)/g, '<span class="tag tag-yellow">🟡</span>$1')
-    .replace(/🔵([^\n]*)/g, '<span class="tag tag-blue">🔵</span>$1')
-    .replace(/✅([^\n]*)/g, '<span class="tag tag-green">✅</span>$1')
-    .replace(/^#{1,3} (.+)$/gm, '<div class="section-title">$1</div>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br/>')
-    .replace(/^(.+)$/, '<p>$1</p>');
-}
-
-function escHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function showTyping() {
-  const messages = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg agent';
-  div.id = 'typing';
-  div.innerHTML = `<div class="avatar avatar-agent">🤖</div><div class="bubble bubble-agent"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function removeTyping() {
-  document.getElementById('typing')?.remove();
-}
-
-function clearChat() {
-  conversationHistory = [];
-  document.getElementById('messages').innerHTML = '';
-  startSession();
-}
-
-// ─── FILE HANDLING ────────────────────────────────────────
-function toggleDropzone() {
-  const dz = document.getElementById('dropzone');
-  if (dz.classList.contains('visible')) {
-    hideDropzone();
-  } else {
-    dz.classList.add('visible');
-  }
-}
-
-function hideDropzone() {
-  document.getElementById('dropzone').classList.remove('visible');
-}
-
-function triggerFile() {
-  document.getElementById('fileInput').click();
-}
-
-function handleFileSelect(e) {
-  addFiles(Array.from(e.target.files));
-  e.target.value = '';
-}
-
-function addFiles(files) {
-  const allowed = ['image/png','image/jpeg','image/jpg','application/pdf','text/csv','application/vnd.ms-excel'];
-  files.forEach(f => {
-    if (allowed.includes(f.type) || f.name.endsWith('.csv')) {
-      pendingFiles.push(f);
+    const data = await resp.json();
+    removeTyping();
+    if (data.error) {
+      addMessage('assistant', '⚠️ Errore API: ' + data.error.message);
+    } else {
+      const reply = data.content?.map(b => b.type === 'text' ? b.text : '').join('') || 'Nessuna risposta.';
+      history.push({ role: 'assistant', content: reply });
+      addMessage('assistant', reply);
     }
-  });
-  renderFileQueue();
-  hideDropzone();
-}
-
-function renderFileQueue() {
-  const fq = document.getElementById('fileQueue');
-  if (pendingFiles.length === 0) { fq.classList.remove('visible'); return; }
-  fq.classList.add('visible');
-  fq.innerHTML = pendingFiles.map((f, i) => {
-    const icon = f.type.startsWith('image/') ? '🖼️' : f.type === 'application/pdf' ? '📄' : '📊';
-    return `<div class="fq-item">${icon} <span>${f.name}</span><span class="fq-remove" onclick="removeFile(${i})">✕</span></div>`;
-  }).join('');
-}
-
-function removeFile(i) {
-  pendingFiles.splice(i, 1);
-  renderFileQueue();
-}
-
-function clearFileQueue() {
-  pendingFiles = [];
-  document.getElementById('fileQueue').classList.remove('visible');
-  document.getElementById('fileQueue').innerHTML = '';
-}
-
-function toBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = () => rej(new Error('Errore lettura file'));
-    r.readAsDataURL(file);
-  });
-}
-
-// ─── DRAG & DROP ──────────────────────────────────────────
-function setupDragDrop() {
-  const body = document.body;
-  const overlay = document.getElementById('dragOverlay');
-
-  body.addEventListener('dragover', e => { e.preventDefault(); overlay.classList.add('active'); });
-  body.addEventListener('dragleave', e => { if (!e.relatedTarget) overlay.classList.remove('active'); });
-  body.addEventListener('drop', e => {
-    e.preventDefault();
-    overlay.classList.remove('active');
-    addFiles(Array.from(e.dataTransfer.files));
-  });
-}
-
-// ─── TEXTAREA ─────────────────────────────────────────────
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-}
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+  } catch(e) {
+    removeTyping();
+    addMessage('assistant', '⚠️ Errore di rete: ' + e.message);
   }
+  sendBtn.disabled = false; isLoading = false;
 }
 
-// ─── MODAL ────────────────────────────────────────────────
-function openModal() {
-  document.getElementById('systemPromptArea').value = systemPrompt;
-  document.getElementById('modalOverlay').classList.add('open');
+async function sendMessage() {
+  if (isLoading) return;
+  const text = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = ''; inputEl.style.height = 'auto';
+  addMessage('user', text);
+  await callAPI(text);
 }
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
+function sendQuick(text) {
+  if (isLoading) return;
+  addMessage('user', text);
+  callAPI(text);
 }
 
-function savePrompt() {
-  systemPrompt = document.getElementById('systemPromptArea').value;
-  localStorage.setItem('ima_system_prompt', systemPrompt);
-  closeModal();
+inputEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+inputEl.addEventListener('input', () => { inputEl.style.height = 'auto'; inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px'; });
+
+async function autoStart() {
+  await callAPI('Avvia la riunione mensile IMA con scheda mercato e tre domande prioritarie.');
 }
 </script>
 </body>
